@@ -105,10 +105,10 @@ export default function OrdersList(props: Props) {
                     {row.id}
                   </TableCell>
                   <TableCell align="center">{row.statusText}</TableCell>
-                  <TableCell align="center" className={classes.date}>
+                  <TableCell align="center">
                     {row.storedAt}
                   </TableCell>
-                  <TableCell align="center" className={classes.date}>
+                  <TableCell align="center">
                     {row.createdAt}
                   </TableCell>
                   <TableCell align="center">
