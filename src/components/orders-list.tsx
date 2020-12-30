@@ -27,9 +27,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   icon: {
     marginLeft: theme.spacing(1),
   },
-  date: {
-    direction: "ltr",
-  },
   margin: {
     margin: theme.spacing(1),
   },
