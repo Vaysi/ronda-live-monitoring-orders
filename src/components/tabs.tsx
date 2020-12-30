@@ -11,14 +11,7 @@ import {
   PlaylistAddCheck,
   ViewComfy,
 } from "@material-ui/icons";
-import { get_orders_list$$ } from "../utils/api";
 import { Badge } from "@material-ui/core";
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: any;
-  value: any;
-}
 
 interface TabItem {
   id: string;
@@ -67,13 +60,13 @@ export default function Tabs(props: Props) {
     function () {
       if (props.list.length) {
         const all = props.list.length;
-        const newOrders = props.list.filter((item) => item.status == 2).length;
-        const editConfirmed = props.list.filter((item) => item.status == 6)
+        const newOrders = props.list.filter((item) => item.status === 2).length;
+        const editConfirmed = props.list.filter((item) => item.status === 6)
           .length;
-        const editRequest = props.list.filter((item) => item.status == 12)
+        const editRequest = props.list.filter((item) => item.status === 12)
           .length;
-        const sent = props.list.filter((item) => item.status == 7).length;
-        const canceled = props.list.filter((item) => item.status == 5).length;
+        const sent = props.list.filter((item) => item.status === 7).length;
+        const canceled = props.list.filter((item) => item.status === 5).length;
         setTabs([
           {
             id: "all",
