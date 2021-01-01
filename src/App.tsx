@@ -8,7 +8,8 @@ import Reload from "./components/reload";
 import { get_orders_list$$ } from "./utils/api";
 import OrdersList from "./components/orders-list";
 import { CircularProgress } from "@material-ui/core";
-import 'vazir-font/dist/Farsi-Digits/font-face-FD.css';
+import "vazir-font/dist/Farsi-Digits/font-face-FD.css";
+import VendorType from "./components/vendor-type";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -33,6 +34,7 @@ export default function MyApp() {
   const [visibleList, setVisibleList] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
+  const [vendorType, setVendorType] = useState<string>("1");
 
   // Timer
   const initialMinute = 0,
@@ -60,7 +62,7 @@ export default function MyApp() {
   });
 
   useEffect(() => {
-    get_orders_list$$((response) => {
+    get_orders_list$$(vendorType, (response) => {
       setOrdersList(Object.values(response.data));
       setVisibleList(Object.values(response.data));
       setLoading(false);
@@ -68,40 +70,42 @@ export default function MyApp() {
   }, []);
 
   useEffect(() => {
-    if(seconds === 0 && minutes === 0){
+    if (seconds === 0 && minutes === 0) {
       reloadList();
     }
   }, [seconds]);
 
-  const clickOnTab = (id: string) => {
+  const clickOnTab = (id: string, list: any = []) => {
     setSelectedTab(id);
+    list = list.length > 0 ? list : ordersList;
     switch (id) {
       case "new":
-        setVisibleList(ordersList.filter((item) => item.status == 2));
+        setVisibleList(list.filter((item:any) => item.status == 2));
         break;
       case "edit_confirmed":
-        setVisibleList(ordersList.filter((item) => item.status == 6));
+        setVisibleList(list.filter((item:any) => item.status == 6));
         break;
       case "edit_request":
-        setVisibleList(ordersList.filter((item) => item.status == 12));
+        setVisibleList(list.filter((item:any) => item.status == 12));
         break;
       case "sent":
-        setVisibleList(ordersList.filter((item) => item.status == 7));
+        setVisibleList(list.filter((item:any) => item.status == 7));
         break;
       case "canceled":
-        setVisibleList(ordersList.filter((item) => item.status == 5));
+        setVisibleList(list.filter((item:any) => item.status == 5));
         break;
       default:
-        setVisibleList(ordersList);
+        setVisibleList(list);
         break;
     }
   };
 
   const reloadList = () => {
     setLoading(true);
-    get_orders_list$$((response) => {
-      setOrdersList(Object.values(response.data));
-      clickOnTab(selectedTab);
+    get_orders_list$$(vendorType, (response) => {
+      let newList = Object.values(response.data);
+      setOrdersList(newList);
+      clickOnTab(selectedTab,newList);
       setSeconds(15);
       setLoading(false);
     });
@@ -116,7 +120,17 @@ export default function MyApp() {
           )}
           <Tabs list={ordersList} clickOnTab={clickOnTab} />
           <OrdersList list={visibleList} setList={setVisibleList} />
-          <Reload loading={loading} reload={reloadList} timer={{ minutes, seconds }} />
+          <Reload
+            loading={loading}
+            reload={reloadList}
+            timer={{ minutes, seconds }}
+          />
+          <VendorType
+            reload={reloadList}
+            vendorType={vendorType}
+            setVendorType={setVendorType}
+            loading={loading}
+          />
         </div>
       </StylesProvider>
     </MaterialUiProvider>

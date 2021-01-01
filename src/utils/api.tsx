@@ -13,6 +13,7 @@ const routes: any = {
 };
 
 export function get_orders_list$$(
+  vendorType: string,
   onSuccess = (response: any) => {},
   onFails = (response: any) => {}
 ): void {
@@ -20,6 +21,12 @@ export function get_orders_list$$(
     method: routes.orders_list.method,
     url: routes.orders_list.url,
   };
+
+  if(vendorType != 'all'){
+    options.params = {
+      vendorType
+    };
+  }
 
   instance
     .request(options)

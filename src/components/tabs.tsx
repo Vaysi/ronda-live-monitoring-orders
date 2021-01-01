@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   appbar: {
     backgroundColor: "#3f51b5",
+    height: "72px"
   },
   tabColor: {
     color: "#fff",
@@ -112,7 +113,7 @@ export default function Tabs(props: Props) {
 
   return (
     <div className={classes.root}>
-      <AppBar position="sticky" className={classes.appbar}>
+      <AppBar position={"fixed"} className={classes.appbar}>
         <MTabs
           value={value}
           onChange={handleChange}

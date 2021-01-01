@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: 400,
     width: "100%",
+    marginTop: "72px"
   },
   table: {
     minWidth: 650,
