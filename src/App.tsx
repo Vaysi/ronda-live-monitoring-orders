@@ -5,7 +5,7 @@ import { ThemeProvider as MaterialUiProvider } from "@material-ui/core/styles";
 import { StylesProvider } from "@material-ui/styles";
 import Tabs from "./components/tabs";
 import Reload from "./components/reload";
-import { get_orders_list$$ } from "./utils/api";
+import { get_orders_list$$, get_pickers_list$$ } from "./utils/api";
 import OrdersList from "./components/orders-list";
 import { CircularProgress } from "@material-ui/core";
 import "vazir-font/dist/Farsi-Digits/font-face-FD.css";
@@ -35,6 +35,7 @@ export default function MyApp() {
   const [selectedTab, setSelectedTab] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
   const [vendorType, setVendorType] = useState<string>("1");
+  const [pickers, setPickers] = useState<any[]>([]);
 
   // Timer
   const initialMinute = 0,
@@ -66,6 +67,9 @@ export default function MyApp() {
       setOrdersList(Object.values(response.data));
       setVisibleList(Object.values(response.data));
       setLoading(false);
+    });
+    get_pickers_list$$((response) => {
+      setPickers(Object.values(response.data));
     });
   }, []);
 
@@ -119,7 +123,7 @@ export default function MyApp() {
             <CircularProgress size={80} className={classes.loading} />
           )}
           <Tabs list={ordersList} clickOnTab={clickOnTab} />
-          <OrdersList list={visibleList} setList={setVisibleList} />
+          <OrdersList list={visibleList} setList={setVisibleList} pickers={pickers} />
           <Reload
             loading={loading}
             reload={reloadList}

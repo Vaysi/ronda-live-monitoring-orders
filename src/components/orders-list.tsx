@@ -8,19 +8,30 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import {
+  Avatar,
   Button,
   ButtonGroup,
+  Dialog,
+  DialogTitle,
   Input,
   InputAdornment,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Snackbar,
   Typography,
 } from "@material-ui/core";
-import { Headset, Motorcycle, Search, Store } from "@material-ui/icons";
+import { Headset, Motorcycle, Person, Search, Store } from "@material-ui/icons";
+import { change_picker$$ } from "../utils/api";
+import Alert from '@material-ui/lab/Alert';
+
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: 400,
     width: "100%",
-    marginTop: "72px"
+    marginTop: "72px",
   },
   table: {
     minWidth: 650,
@@ -38,11 +49,32 @@ const useStyles = makeStyles((theme: Theme) => ({
   searchIcon: {
     marginLeft: theme.spacing(1),
   },
+  greenButton: {
+    backgroundColor: theme.palette.success.main,
+    borderColor: theme.palette.success.main,
+    color: "#fff",
+    "&:hover": {
+      backgroundColor: theme.palette.success.dark,
+      borderColor: theme.palette.success.dark,
+    },
+    "&:active": {
+      backgroundColor: theme.palette.success.light,
+      borderColor: theme.palette.success.light,
+    },
+  },
+  listText: {
+    textAlign: "right",
+  },
+  avatar_all: {
+    color: "#fff",
+    backgroundColor: theme.palette.info.dark,
+  },
 }));
 
 interface Props {
   list: any[];
   setList: any;
+  pickers: any[];
 }
 
 export default function OrdersList(props: Props) {
@@ -50,6 +82,10 @@ export default function OrdersList(props: Props) {
 
   const [term, setTerm] = useState<string>("");
   const [searchList, setSearchList] = useState<any[]>([]);
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedOrder, setSelectedOrder] = useState<string>("");
+  const [success, setSuccess] = useState<boolean>(false);
+  const [failed, setFailed] = useState<boolean>(false);
 
   useEffect(() => {
     if (term == "") {
@@ -70,6 +106,16 @@ export default function OrdersList(props: Props) {
       );
     }
   };
+
+  const changePicker = (pickerId:string) => {
+    change_picker$$(selectedOrder,pickerId,(response) => {
+      setSuccess(true);
+      setOpen(false);
+    },()=> {
+      setFailed(true);
+      setOpen(false);
+    });
+  }
 
   return (
     <div className={classes.root}>
@@ -96,6 +142,7 @@ export default function OrdersList(props: Props) {
               <TableCell align="center">زمان ثبت</TableCell>
               <TableCell align="center">زمان تحویل</TableCell>
               <TableCell align="center">ارجاع شده</TableCell>
+              <TableCell align="center">علمیات</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -106,12 +153,8 @@ export default function OrdersList(props: Props) {
                     {row.id}
                   </TableCell>
                   <TableCell align="center">{row.statusText}</TableCell>
-                  <TableCell align="center">
-                    {row.storedAt}
-                  </TableCell>
-                  <TableCell align="center">
-                    {row.createdAt}
-                  </TableCell>
+                  <TableCell align="center">{row.storedAt}</TableCell>
+                  <TableCell align="center">{row.createdAt}</TableCell>
                   <TableCell align="center">
                     <ButtonGroup orientation="vertical" variant="outlined">
                       {row.supporter && (
@@ -143,11 +186,66 @@ export default function OrdersList(props: Props) {
                       )}
                     </ButtonGroup>
                   </TableCell>
+                  <TableCell align="center">
+                    {row.status != 5 && row.status != 7 && (
+                      <Button
+                        variant="contained"
+                        color="default"
+                        onClick={() => {
+                          setSelectedOrder(row.id);
+                          setOpen(true);
+                        }}
+                        className={classes.greenButton}
+                      >
+                        <Store className={classes.icon} />
+                        <Typography>تغیر سبد چین</Typography>
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Assign Picker To Order */}
+
+      <Dialog
+        onClose={() => setOpen(false)}
+        aria-labelledby="simple-dialog-title"
+        open={open}
+      >
+        <DialogTitle id="simple-dialog-title">
+          انتخاب سبدچین برای سفارش #{selectedOrder}
+        </DialogTitle>
+        <List>
+          {props.pickers.map((picker) => (
+            <ListItem button onClick={() => changePicker(picker.id)}>
+              <ListItemAvatar>
+                <Avatar className={classes.avatar_all}>
+                  <Person />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText
+                className={classes.listText}
+                primary={`${picker.firstName} ${picker.lastName}`}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Dialog>
+      
+      {/* Success Message */}
+      <Snackbar open={success} autoHideDuration={6000} onClose={() => setSuccess(false)}>
+        <Alert onClose={() => setSuccess(false)} severity="success">
+          تغیر سبد چین با موفقیت انجام شد !
+        </Alert>
+      </Snackbar>
+      <Snackbar open={failed} autoHideDuration={6000} onClose={() => setFailed(false)}>
+        <Alert onClose={() => setFailed(false)} severity="error">
+            خطایی در تغیر سبد چین اتفاق افتاده !
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
