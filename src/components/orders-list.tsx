@@ -12,6 +12,8 @@ import {
   Button,
   ButtonGroup,
   Dialog,
+  DialogActions,
+  DialogContent,
   DialogTitle,
   Input,
   InputAdornment,
@@ -24,7 +26,8 @@ import {
 } from "@material-ui/core";
 import { Headset, Motorcycle, Person, Search, Store } from "@material-ui/icons";
 import { change_picker$$ } from "../utils/api";
-import Alert from '@material-ui/lab/Alert';
+import Alert from "@material-ui/lab/Alert";
+import { toRial } from "../utils/helpers";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -69,6 +72,13 @@ const useStyles = makeStyles((theme: Theme) => ({
     color: "#fff",
     backgroundColor: theme.palette.info.dark,
   },
+  btnGroup: {
+    justifyContent: "space-between",
+    display: "flex",
+  },
+  productsTable: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 interface Props {
@@ -84,8 +94,10 @@ export default function OrdersList(props: Props) {
   const [searchList, setSearchList] = useState<any[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [selectedOrder, setSelectedOrder] = useState<string>("");
+  const [selectedOrderObject, setSelectedOrderObject] = useState<any>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [failed, setFailed] = useState<boolean>(false);
+  const [detailsVisbility, setDetailsVisbility] = useState<boolean>(false);
 
   useEffect(() => {
     if (term == "") {
@@ -107,15 +119,20 @@ export default function OrdersList(props: Props) {
     }
   };
 
-  const changePicker = (pickerId:string) => {
-    change_picker$$(selectedOrder,pickerId,(response) => {
-      setSuccess(true);
-      setOpen(false);
-    },()=> {
-      setFailed(true);
-      setOpen(false);
-    });
-  }
+  const changePicker = (pickerId: string) => {
+    change_picker$$(
+      selectedOrder,
+      pickerId,
+      (response) => {
+        setSuccess(true);
+        setOpen(false);
+      },
+      () => {
+        setFailed(true);
+        setOpen(false);
+      }
+    );
+  };
 
   return (
     <div className={classes.root}>
@@ -150,7 +167,16 @@ export default function OrdersList(props: Props) {
               searchList.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell component="th" scope="row" align="center">
-                    {row.id}
+                    <Button
+                      variant="outlined"
+                      color={"primary"}
+                      onClick={() => {
+                        setDetailsVisbility(true);
+                        setSelectedOrderObject(row);
+                      }}
+                    >
+                      {row.id}
+                    </Button>
                   </TableCell>
                   <TableCell align="center">{row.statusText}</TableCell>
                   <TableCell align="center">{row.storedAt}</TableCell>
@@ -234,18 +260,81 @@ export default function OrdersList(props: Props) {
           ))}
         </List>
       </Dialog>
-      
+
       {/* Success Message */}
-      <Snackbar open={success} autoHideDuration={6000} onClose={() => setSuccess(false)}>
+      <Snackbar
+        open={success}
+        autoHideDuration={6000}
+        onClose={() => setSuccess(false)}
+      >
         <Alert onClose={() => setSuccess(false)} severity="success">
           تغیر سبد چین با موفقیت انجام شد !
         </Alert>
       </Snackbar>
-      <Snackbar open={failed} autoHideDuration={6000} onClose={() => setFailed(false)}>
+      <Snackbar
+        open={failed}
+        autoHideDuration={6000}
+        onClose={() => setFailed(false)}
+      >
         <Alert onClose={() => setFailed(false)} severity="error">
-            خطایی در تغیر سبد چین اتفاق افتاده !
+          خطایی در تغیر سبد چین اتفاق افتاده !
         </Alert>
       </Snackbar>
+
+      {/* Details Dialog */}
+
+      <Dialog
+        open={detailsVisbility}
+        onClose={() => setDetailsVisbility(false)}
+        maxWidth={"xl"}
+      >
+        <DialogTitle id="alert-dialog-title">جزئیات سفارش</DialogTitle>
+        <DialogContent>
+          <div className={classes.btnGroup}>
+            <Button variant="outlined" color="primary">
+              کد سفارش : #{selectedOrderObject?.id}
+            </Button>
+            <Button variant="outlined" color="primary">
+              نام مشتری‌ : {selectedOrderObject?.member.fullName}
+            </Button>
+            <Button variant="outlined" color="primary">
+              ساعت تحویل :‌ {selectedOrderObject?.createdAt}
+            </Button>
+            <Button variant="outlined" color="primary">
+              هزینه سفارش :‌ {toRial(selectedOrderObject?.totalPrice)}
+            </Button>
+          </div>
+          <TableContainer component={Paper} className={classes.productsTable}>
+            <Table className={classes.table}>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">نام کالا</TableCell>
+                  <TableCell align="center">بارکد</TableCell>
+                  <TableCell align="center">تعداد</TableCell>
+                  <TableCell align="center">قیمت مصرف کننده</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedOrderObject?.products_orders.map((product:any) => (
+                  <TableRow key={product.id}>
+                    <TableCell align="center">
+                      {product?.products_endpoint.tag}
+                    </TableCell>
+                    <TableCell align="center">{product?.products_endpoint.tag.barcode}</TableCell>
+                    <TableCell align="center">{product?.qty}</TableCell>
+                    <TableCell align="center">{toRial(product?.products_endpoint.consumerPrice)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetailsVisbility(false)} color="primary">
+            بستن
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
