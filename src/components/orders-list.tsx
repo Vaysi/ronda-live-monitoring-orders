@@ -38,7 +38,7 @@ import {
 } from "@material-ui/icons";
 import { change_picker$$ } from "../utils/api";
 import Alert from "@material-ui/lab/Alert";
-import { toRial } from "../utils/helpers";
+import { toToman } from "../utils/helpers";
 import "./print.css";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -334,7 +334,7 @@ function OrdersList(props: Props) {
               ساعت تحویل :‌ {selectedOrderObject?.createdAt}
             </Button>
             <Button variant="outlined" color="primary">
-              هزینه سفارش :‌ {toRial(selectedOrderObject?.totalPrice)}
+              هزینه سفارش :‌ {toToman(selectedOrderObject?.totalPrice)}
             </Button>
           </div>
           <TableContainer component={Paper} className={classes.productsTable}>
@@ -358,7 +358,7 @@ function OrdersList(props: Props) {
                     </TableCell>
                     <TableCell align="center">{product?.qty}</TableCell>
                     <TableCell align="center">
-                      {toRial(product?.products_endpoint.consumerPrice)}
+                      {toToman(product?.products_endpoint.consumerPrice)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -415,7 +415,9 @@ function OrdersList(props: Props) {
                 <Table className={classes.table} aria-label="simple table">
                   <TableHead>
                     <TableRow>
-                      <TableCell align="center" colSpan={2}>نام کالا</TableCell>
+                      <TableCell align="center" colSpan={2}>
+                        نام کالا
+                      </TableCell>
                       <TableCell align="center">فی</TableCell>
                       <TableCell align="center">تعداد</TableCell>
                       <TableCell align="center">قیمت</TableCell>
@@ -423,20 +425,20 @@ function OrdersList(props: Props) {
                   </TableHead>
                   <TableBody>
                     {selectedOrderObject?.products_orders.map(
-                      (product: any,index: number) => (
+                      (product: any, index: number) => (
                         <TableRow key={product.id}>
-                          <TableCell align="center">
-                            {index + 1}
-                          </TableCell>
+                          <TableCell align="center">{index + 1}</TableCell>
                           <TableCell align="center">
                             {`${product?.products_endpoint?.custom_product?.label} ، ${product?.products_endpoint.tag}`}
                           </TableCell>
                           <TableCell align="center">
-                            {toRial(product?.price)}
+                            {toToman(product?.price)}
                           </TableCell>
                           <TableCell align="center">{product?.qty}</TableCell>
                           <TableCell align="center">
-                            {toRial(product?.products_endpoint.price * product?.qty)}
+                            {toToman(
+                              product?.products_endpoint.price * product?.qty
+                            )}
                           </TableCell>
                         </TableRow>
                       )
@@ -447,17 +449,30 @@ function OrdersList(props: Props) {
             </Grid>
             <Grid item xs={12}>
               <Typography>
-                هزینه ارسال :{" "}
-                {toRial(selectedOrderObject?.deliveryPrice)}
+                هزینه ارسال : {toToman(selectedOrderObject?.deliveryPrice)}
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography>
-                قابل پرداخت :{" "}
-                {toRial(selectedOrderObject?.totalPrice)}
+                قابل پرداخت : {toToman(selectedOrderObject?.totalPrice)}
               </Typography>
             </Grid>
-            <Divider />
+            <Grid item xs={12}>
+              <Typography>
+                نحوه پرداخت : {selectedOrderObject?.method}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography align="right">
+                زمان ثبت :{" "}
+                <Typography component="span" style={{ direction: "rtl" }}>
+                  {selectedOrderObject?.storedAtDT}
+                </Typography>
+              </Typography>
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
