@@ -15,20 +15,29 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Input,
   InputAdornment,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Modal,
   Snackbar,
   Typography,
 } from "@material-ui/core";
-import { Headset, Motorcycle, Person, Search, Store } from "@material-ui/icons";
+import {
+  Headset,
+  Motorcycle,
+  Person,
+  Print,
+  Search,
+  Store,
+} from "@material-ui/icons";
 import { change_picker$$ } from "../utils/api";
 import Alert from "@material-ui/lab/Alert";
 import { toRial } from "../utils/helpers";
-
+import "./print.css";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -79,6 +88,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   productsTable: {
     marginTop: theme.spacing(2),
   },
+  closeButton: {
+    position: "absolute",
+    left: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
 }));
 
 interface Props {
@@ -87,7 +102,7 @@ interface Props {
   pickers: any[];
 }
 
-export default function OrdersList(props: Props) {
+function OrdersList(props: Props) {
   const classes = useStyles();
 
   const [term, setTerm] = useState<string>("");
@@ -98,6 +113,7 @@ export default function OrdersList(props: Props) {
   const [success, setSuccess] = useState<boolean>(false);
   const [failed, setFailed] = useState<boolean>(false);
   const [detailsVisbility, setDetailsVisbility] = useState<boolean>(false);
+  const [print, setPrint] = useState<boolean>(false);
 
   useEffect(() => {
     if (term == "") {
@@ -288,7 +304,16 @@ export default function OrdersList(props: Props) {
         onClose={() => setDetailsVisbility(false)}
         maxWidth={"xl"}
       >
-        <DialogTitle id="alert-dialog-title">جزئیات سفارش</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          <Typography variant="h6">جزئیات سفارش</Typography>
+          <IconButton
+            aria-label="close"
+            onClick={() => setPrint(true)}
+            className={classes.closeButton}
+          >
+            <Print />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <div className={classes.btnGroup}>
             <Button variant="outlined" color="primary">
@@ -315,14 +340,18 @@ export default function OrdersList(props: Props) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {selectedOrderObject?.products_orders.map((product:any) => (
+                {selectedOrderObject?.products_orders.map((product: any) => (
                   <TableRow key={product.id}>
                     <TableCell align="center">
                       {product?.products_endpoint.tag}
                     </TableCell>
-                    <TableCell align="center">{product?.products_endpoint.tag.barcode}</TableCell>
+                    <TableCell align="center">
+                      {product?.products_endpoint.tag.barcode}
+                    </TableCell>
                     <TableCell align="center">{product?.qty}</TableCell>
-                    <TableCell align="center">{toRial(product?.products_endpoint.consumerPrice)}</TableCell>
+                    <TableCell align="center">
+                      {toRial(product?.products_endpoint.consumerPrice)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -335,6 +364,22 @@ export default function OrdersList(props: Props) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Print Components */}
+
+      <Dialog open={print} onClose={() => setPrint(false)} fullScreen>
+        <DialogTitle id="alert-dialog-title">
+          چاپ سفارش #{selectedOrderObject?.id}
+        </DialogTitle>
+        <DialogContent>hi bitch</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPrint(false)} color="primary">
+            بستن
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
+
+export default OrdersList;
