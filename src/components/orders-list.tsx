@@ -15,6 +15,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
+  Grid,
   IconButton,
   Input,
   InputAdornment,
@@ -93,6 +95,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     left: theme.spacing(1),
     top: theme.spacing(1),
     color: theme.palette.grey[500],
+  },
+  typo: {
+    marginRight: theme.spacing(1),
+  },
+  center: {
+    textAlign: "center",
   },
 }));
 
@@ -179,7 +187,7 @@ function OrdersList(props: Props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {searchList.length &&
+            {searchList.length > 0 &&
               searchList.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell component="th" scope="row" align="center">
@@ -368,10 +376,90 @@ function OrdersList(props: Props) {
       {/* Print Components */}
 
       <Dialog open={print} onClose={() => setPrint(false)} fullScreen>
-        <DialogTitle id="alert-dialog-title">
-          چاپ سفارش #{selectedOrderObject?.id}
-        </DialogTitle>
-        <DialogContent>hi bitch</DialogContent>
+        <DialogContent>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={4} className={classes.center}>
+              <Button variant="outlined">
+                کد سفارش :
+                <Typography className={classes.typo}>
+                  {selectedOrderObject?.id}
+                </Typography>
+              </Button>
+            </Grid>
+            <Grid item xs={4}>
+              <Typography align="center">سفارش از روندا</Typography>
+            </Grid>
+            <Grid item xs={4} className={classes.center}>
+              <img src="/ronda.jpg" width="50" />
+            </Grid>
+          </Grid>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12}>
+              <Typography>
+                مشترک گرامی : {selectedOrderObject?.member.fullName}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>
+                موبایل : {selectedOrderObject?.address.phone}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>
+                آدرس :{" "}
+                {`${selectedOrderObject?.address.zone.label} ، ${selectedOrderObject?.address.address}`}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center" colSpan={2}>نام کالا</TableCell>
+                      <TableCell align="center">فی</TableCell>
+                      <TableCell align="center">تعداد</TableCell>
+                      <TableCell align="center">قیمت</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedOrderObject?.products_orders.map(
+                      (product: any,index: number) => (
+                        <TableRow key={product.id}>
+                          <TableCell align="center">
+                            {index + 1}
+                          </TableCell>
+                          <TableCell align="center">
+                            {`${product?.products_endpoint?.custom_product?.label} ، ${product?.products_endpoint.tag}`}
+                          </TableCell>
+                          <TableCell align="center">
+                            {toRial(product?.price)}
+                          </TableCell>
+                          <TableCell align="center">{product?.qty}</TableCell>
+                          <TableCell align="center">
+                            {toRial(product?.products_endpoint.price * product?.qty)}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>
+                هزینه ارسال :{" "}
+                {toRial(selectedOrderObject?.deliveryPrice)}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography>
+                قابل پرداخت :{" "}
+                {toRial(selectedOrderObject?.totalPrice)}
+              </Typography>
+            </Grid>
+            <Divider />
+          </Grid>
+        </DialogContent>
         <DialogActions>
           <Button onClick={() => setPrint(false)} color="primary">
             بستن
