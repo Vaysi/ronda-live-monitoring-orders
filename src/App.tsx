@@ -63,11 +63,18 @@ export default function MyApp() {
   });
 
   useEffect(() => {
-    get_orders_list$$(vendorType, (response) => {
-      setOrdersList(Object.values(response.data));
-      setVisibleList(Object.values(response.data));
-      setLoading(false);
-    });
+    get_orders_list$$(
+      vendorType,
+      (response) => {
+        setOrdersList(Object.values(response.data));
+        setVisibleList(Object.values(response.data));
+        setLoading(false);
+      },
+      () => {
+        setLoading(false);
+        reloadList();
+      }
+    );
     get_pickers_list$$((response) => {
       setPickers(Object.values(response.data));
     });
@@ -84,19 +91,19 @@ export default function MyApp() {
     list = list.length > 0 ? list : ordersList;
     switch (id) {
       case "new":
-        setVisibleList(list.filter((item:any) => item.status == 2));
+        setVisibleList(list.filter((item: any) => item.status == 2));
         break;
       case "edit_confirmed":
-        setVisibleList(list.filter((item:any) => item.status == 6));
+        setVisibleList(list.filter((item: any) => item.status == 6));
         break;
       case "edit_request":
-        setVisibleList(list.filter((item:any) => item.status == 12));
+        setVisibleList(list.filter((item: any) => item.status == 12));
         break;
       case "sent":
-        setVisibleList(list.filter((item:any) => item.status == 7));
+        setVisibleList(list.filter((item: any) => item.status == 7));
         break;
       case "canceled":
-        setVisibleList(list.filter((item:any) => item.status == 5));
+        setVisibleList(list.filter((item: any) => item.status == 5));
         break;
       default:
         setVisibleList(list);
@@ -106,13 +113,20 @@ export default function MyApp() {
 
   const reloadList = () => {
     setLoading(true);
-    get_orders_list$$(vendorType, (response) => {
-      let newList = Object.values(response.data);
-      setOrdersList(newList);
-      clickOnTab(selectedTab,newList);
-      setSeconds(15);
-      setLoading(false);
-    });
+    get_orders_list$$(
+      vendorType,
+      (response) => {
+        let newList = Object.values(response.data);
+        setOrdersList(newList);
+        clickOnTab(selectedTab, newList);
+        setSeconds(15);
+        setLoading(false);
+      },
+      () => {
+        setLoading(false);
+        reloadList();
+      }
+    );
   };
 
   return (
@@ -123,7 +137,11 @@ export default function MyApp() {
             <CircularProgress size={80} className={classes.loading} />
           )}
           <Tabs list={ordersList} clickOnTab={clickOnTab} />
-          <OrdersList list={visibleList} setList={setVisibleList} pickers={pickers} />
+          <OrdersList
+            list={visibleList}
+            setList={setVisibleList}
+            pickers={pickers}
+          />
           <Reload
             loading={loading}
             reload={reloadList}
