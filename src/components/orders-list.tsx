@@ -351,10 +351,10 @@ function OrdersList(props: Props) {
                 {selectedOrderObject?.products_orders.map((product: any) => (
                   <TableRow key={product.id}>
                     <TableCell align="center">
-                      {product?.products_endpoint.tag}
+                      {`${product?.products_endpoint?.custom_product?.label} - ${product?.products_endpoint.tag}`}
                     </TableCell>
                     <TableCell align="center">
-                      {product?.products_endpoint.tag.barcode}
+                      {product?.products_endpoint.barcode}
                     </TableCell>
                     <TableCell align="center">{product?.qty}</TableCell>
                     <TableCell align="center">
