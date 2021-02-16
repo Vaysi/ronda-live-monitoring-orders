@@ -67,7 +67,7 @@ export default function MyApp() {
       vendorType,
       (response) => {
         setOrdersList(Object.values(response.data));
-        setVisibleList(Object.values(response.data));
+        setVisibleList(Object.values(response.data).filter((item: any) => item.status != 7));
         setLoading(false);
       },
       () => {
@@ -106,7 +106,7 @@ export default function MyApp() {
         setVisibleList(list.filter((item: any) => item.status == 5));
         break;
       default:
-        setVisibleList(list);
+        setVisibleList(list.filter((item: any) => item.status != 7));
         break;
     }
   };
