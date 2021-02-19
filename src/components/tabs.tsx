@@ -60,7 +60,7 @@ export default function Tabs(props: Props) {
   useEffect(
     function () {
       if (props.list.length) {
-        const all = props.list.length;
+        const all = props.list.filter((item) => item.status != 5).length;
         const newOrders = props.list.filter((item) => item.status === 2).length;
         const editConfirmed = props.list.filter((item) => item.status === 6)
           .length;
